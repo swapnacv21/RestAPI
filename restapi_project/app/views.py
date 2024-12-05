@@ -25,7 +25,7 @@ def fun2(req):
 @csrf_exempt
 def fun3(req):
     if req.method=='GET':
-        d=Project.objects,all()
+        d=Project.objects.all()
         s=Model_serializer(d,many=True)
         return JsonResponse(s.data,safe=False)
     elif req.method=='POST':
