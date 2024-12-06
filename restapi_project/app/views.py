@@ -36,3 +36,115 @@ def fun3(req):
             return JsonResponse(s.data)
         else:
             return JsonResponse(s.errors)
+        
+@csrf_exempt
+def fun4(req,d):
+    try:
+        demo=Project.objects.get(pk=d)
+    except Project.DoesNotExist:
+        return HttpResponse('invalid')
+    if req.method=='GET':
+        s=Model_serializer(demo)
+        return JsonResponse(s.data)
+    elif req.method=='PUT':
+        d=JSONParser().parse(req)
+        s=Model_serializer(demo,data=d)
+        if s.is_valid():
+           s.save()
+           return JsonResponse(s.data)
+        else:
+            return JsonResponse(s.errors)
+    elif req.method=='DELETE':
+        demo.delete()
+        return HttpResponse('deleted')
+    
+
+@api_view(['GET','POST'])
+def fun5(req):
+    if req.method=='GET':
+        d=Project.objects.all()
+        s=Model_serializer(d,many=True)
+        return Response(s.data)
+    elif req.method=='POST':
+        s=Model_serializer(data=req.data)
+        if s.is_valid():
+            s.save()
+            return JsonResponse(s.data,status=status.HTTP_201_CREATED)
+        else:
+            return JsonResponse(s.errors,status=status.HTTP_400_BAD_REQUEST)
+        
+
+@api_view(['GET','PUT','DELETE'])
+def fun6(req,d):
+    try:
+        demo=Project.objects.get(pk=d)
+    except:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    if req.method=='GET':
+        s=Model_serializer(demo)
+        return Response(s.data)
+    elif req.method=='PUT':
+        s=Model_serializer(demo,data=req.data)
+        if s.is_valid():
+            s.save()
+            return Response(s.data)
+        else:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+    elif req.method=='DELETE':
+        demo.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+    
+def fun7(APIView):
+    def get(self,req):
+        demo=Project.objects.all()
+        s=Model_serializer(demo,many=True)
+        return Response(s.data)
+    def post(seld,req):
+        s=Model_serializer(data=req.data)
+        if s.is_valid():
+            s.save()
+            return JsonResponse(s.data,status=status.HTTP_201_CREATED)
+        else:
+            return JsonResponse(s.errors,status=status.HTTP_400_BAD_REQUEST)
+        
+
+class fun8(APIView):
+    def get(self,req,d):
+        try:
+            demo=Project.objects.get(pk=d)
+            s=Model_serializer(demo)
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        except Project.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        
+
+def delete(self,req,d):
+    try:
+        demo=Project.objects.get(pk=d)
+        demo.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+    except Project.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+
+
+class genericapiview(generics.GenericAPIView,mixins.ListModelMixin):
+    serializer_class=Model_serializer
+    queryset=Project.objects.all()
+    def get(self,req):
+        return self.list(req)
+    def post(self,req):
+        return self.create(req)
+    
+
+class update(generics.GenericAPIView,mixins.RetrieveModelMixin):
+    serializer_class=Model_serializer
+    queryset=Project.objects.all()
+    lookup_field='id'
+    def get(self,req,id=None):
+        return self.retrieve(req)
+    def put(self,req,id=None):
+        return self.update(req,id)
+    def delete(self,req,id):
+        return self.destroy(req,id)
+
+
