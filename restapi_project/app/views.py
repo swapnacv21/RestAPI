@@ -58,9 +58,10 @@ def fun4(req,d):
         demo.delete()
         return HttpResponse('deleted')
     
-
+# @api_view(['GET','POST'])
 @api_view(['GET','POST'])
 def fun5(req):
+    
     if req.method=='GET':
         d=Project.objects.all()
         s=Model_serializer(d,many=True)
@@ -78,7 +79,7 @@ def fun5(req):
 def fun6(req,d):
     try:
         demo=Project.objects.get(pk=d)
-    except:
+    except Project.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
     if req.method=='GET':
         s=Model_serializer(demo)
@@ -118,13 +119,13 @@ class fun8(APIView):
             return Response(status=status.HTTP_404_NOT_FOUND)
         
 
-def delete(self,req,d):
-    try:
-        demo=Project.objects.get(pk=d)
-        demo.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
-    except Project.DoesNotExist:
-        return Response(status=status.HTTP_404_NOT_FOUND)
+    def delete(self,req,d):
+        try:
+            demo=Project.objects.get(pk=d)
+            demo.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        except Project.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
 
 
 class genericapiview(generics.GenericAPIView,mixins.ListModelMixin):
