@@ -95,12 +95,12 @@ def fun6(req,d):
         demo.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
     
-def fun7(APIView):
+class fun7(APIView):
     def get(self,req):
         demo=Project.objects.all()
         s=Model_serializer(demo,many=True)
         return Response(s.data)
-    def post(seld,req):
+    def post(self,req):
         s=Model_serializer(data=req.data)
         if s.is_valid():
             s.save()
@@ -114,11 +114,20 @@ class fun8(APIView):
         try:
             demo=Project.objects.get(pk=d)
             s=Model_serializer(demo)
-            return Response(status=status.HTTP_404_NOT_FOUND)
+            return Response(s.data)
         except Project.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
-        
-
+    def put(self,req,d):
+        try:
+            demo=Project.objects.get(pk=d)
+            s=Model_serializer(demo,data=req.data)
+            if s.is_valid():
+                s.save()
+                return Response(s.data)
+            else:
+                return Response(status=status.HTTP_400_BAD_REQUEST)
+        except Project.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
     def delete(self,req,d):
         try:
             demo=Project.objects.get(pk=d)
